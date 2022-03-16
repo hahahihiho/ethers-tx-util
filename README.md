@@ -1,8 +1,8 @@
 
 what you need to prepare
 - .env : 
-    - PK_ADMIN=~~
-    - PK_LIST=~~,~~,~~...
+    - PK_ADMIN=0x~
+    - PK_LIST=0x~,0x~,0x~...
 
 function lists
 
