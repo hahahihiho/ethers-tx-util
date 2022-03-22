@@ -1,6 +1,6 @@
 
 what you need to prepare
-- .env : 
+- .env : (it would be in parent directory)
     - PK_ADMIN=0x~
     - PK_LIST=0x~,0x~,0x~...
 
@@ -12,7 +12,7 @@ function lists
 
 - get_signer(url,pk)
 
-- deployContract(contract_path,contract_name,signer,[constructor_arguments])
+- deployContract(contract_path,contract_name,signer,constructor_arguments)
 : 
     - contract_path = "myContractsDir/firstContract.sol" // file_path
     - contract_name = "ContractName" // contract name written in .sol file
