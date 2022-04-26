@@ -3,6 +3,9 @@ const fs = require('fs')
 const ethers = require('ethers');
 const path = require("path")
 
+const PRE_PATH = path.join(__dirname,"../")
+const CONFIG_PATH = path.join(PRE_PATH,"./config")
+
 function _read_json(path){
     const data = fs.readFileSync(path);
     return JSON.parse(data.toString())
@@ -19,9 +22,9 @@ function _read_json(path){
 function _getCompiledInfoPath(contract_path,contract_name){
     // handle post-fix ".sol"
     if(contract_path!=undefined && contract_path.slice(-4) == ".sol") contract_path = contract_path.slice(0,contract_path.length-".sol".length)
-    const truffle_path = path.join(__dirname,`../build/contracts/${contract_name}.json`)
-    const hardhat_path = path.join(__dirname,`../artifacts/contracts/${contract_path}.sol/${contract_name}.json`)
-    const hardhat_openzeppelin_path = path.join(__dirname,`../artifacts/${contract_path}.sol/${contract_name}.json`)
+    const truffle_path = path.join(PRE_PATH,`./build/contracts/${contract_name}.json`)
+    const hardhat_path = path.join(PRE_PATH,`./artifacts/contracts/${contract_path}.sol/${contract_name}.json`)
+    const hardhat_openzeppelin_path = path.join(PRE_PATH,`./artifacts/${contract_path}.sol/${contract_name}.json`)
     if(contract_path != undefined && contract_path.slice(0,"@openzeppelin".length) == "@openzeppelin" && fs.existsSync(hardhat_openzeppelin_path)){
         return hardhat_openzeppelin_path;
     } else if(contract_path == undefined && fs.existsSync(truffle_path)) return truffle_path;
@@ -29,25 +32,23 @@ function _getCompiledInfoPath(contract_path,contract_name){
 }
 
 function get_contract_addresses(){
-    const file_path = path.join(__dirname ,"../config/contract_addresses.js");
+    const file_path = path.join(PRE_PATH ,"./config/contract_addresses.js");
     const CAs = require(file_path)
     return CAs
 }
 
 function get_additional_info(){
-    const config = require(path.join(__dirname ,"../config/additional_info.js"));
+    const config = require(path.join(PRE_PATH ,"./config/additional_info.js"));
     return config
 }
 
 function get_accounts(){
-    const file_path = path.join(__dirname,"../config/accounts.json");
+    const file_path = path.join(PRE_PATH,"./config/accounts.json");
     if(!fs.existsSync(file_path)){
-        const accounts = {}
-        require("dotenv").config(path.join(__dirname,"../.env"))
-        accounts['admin_accounts'] = new ethers.Wallet(process.env.PK_ADMIN).address;
-        accounts['test_accounts'] = []
+        const accounts = []
+        require("dotenv").config({path:path.join(PRE_PATH,"./.env")})
         for(let pk of process.env.PK_LIST.split(",")){
-            accounts['test_accounts'].push(new ethers.Wallet(pk).address)
+            accounts.push(new ethers.Wallet(pk).address)
         }
         fs.writeFileSync(file_path,JSON.stringify(accounts))
     }
@@ -55,9 +56,8 @@ function get_accounts(){
 }
 
 function get_pk(){
-    require("dotenv").config(path.join(__dirname,"../.env"))
+    require("dotenv").config({path:path.join(PRE_PATH,"./.env")})
     let result = {
-        PK_ADMIN : process.env.PK_ADMIN,
         PK_LIST : process.env.PK_LIST.split(",")
     }
     return result
@@ -105,17 +105,17 @@ function getInfo(contract_path,contract_name){
 }
 
 function readCA(){
-    const config_path = path.join(__dirname,"../config")
+    const config_path = path.join(PRE_PATH,"./config")
     if(!fs.existsSync(config_path)) fs.mkdirSync(config_path);
-    const ca_path = path.join(config_path,"deployed_ca.json");
+    const ca_path = path.join(config_path,"cached_ca.json");
     if(!fs.existsSync(ca_path)) return {}
     return JSON.parse(fs.readFileSync(ca_path).toString())
 }
 
 function writeCA(ca){
-    const config_path = path.join(__dirname,"../config")
+    const config_path = path.join(PRE_PATH,"./config")
     if(!fs.existsSync(config_path)) fs.mkdirSync(config_path);
-    const ca_path = path.join(config_path,"deployed_ca.json");
+    const ca_path = path.join(config_path,"cached_ca.json");
     let ca_new = readCA()
     for(let k in ca){
         ca_new[k] = ca[k]

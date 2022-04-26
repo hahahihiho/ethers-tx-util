@@ -6,14 +6,12 @@ async function main(){
     
     // get pk from .env
     const pks = tx_util.get_pk()
-    const pk_admin = pks.PK_ADMIN;
     const pk_list = pks.PK_LIST;
+    const pk_admin = pk_list[0];
 
     // get accounts from ../config/accounts.json if it doesn't exist,
     // get account addresses from .env(private key -> address)
     const accounts = tx_util.get_accounts();
-    const admin_account = accounts.admin_account;
-    const test_accounts = accounts.test_accounts;
 
     // get signer
     const url = "http://127.0.0.1:8545";

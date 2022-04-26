@@ -1,8 +1,9 @@
 
 what you need to prepare
-- .env : (it would be in parent directory)
-    - PK_ADMIN=0x~
+- .env : 
     - PK_LIST=0x~,0x~,0x~...
+
+- set PRE_PATH in tx_util.js : path for config, .env
 
 function lists
 
@@ -16,7 +17,7 @@ function lists
 : 
     - contract_path = "myContractsDir/firstContract.sol" // file_path
     - contract_name = "ContractName" // contract name written in .sol file
-    - no constructor_arguments : []
+    - constructor_arguments = [] // no argument
 
 - readCA()[contract_name] : get deployed contract addresses
 
