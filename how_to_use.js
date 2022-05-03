@@ -5,8 +5,7 @@ const ethers = require("ethers");
 async function main(){
     
     // get pk from .env
-    const pks = tx_util.get_pk()
-    const pk_list = pks.PK_LIST;
+    const pk_list = tx_util.get_pk();
     const pk_admin = pk_list[0];
 
     // get accounts from ../config/accounts.json if it doesn't exist,

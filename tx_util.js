@@ -24,12 +24,14 @@ function _getCompiledInfoPath(contract_path,contract_name){
     if(contract_path!=undefined && contract_path.slice(-4) == ".sol") contract_path = contract_path.slice(0,contract_path.length-".sol".length)
     const truffle_path = path.join(PRE_PATH,`./build/contracts/${contract_name}.json`)
     const hardhat_path = path.join(PRE_PATH,`./artifacts/contracts/${contract_path}.sol/${contract_name}.json`)
-    const hardhat_openzeppelin_path = path.join(PRE_PATH,`./artifacts/${contract_path}.sol/${contract_name}.json`)
-    if(contract_path != undefined && contract_path.slice(0,"@openzeppelin".length) == "@openzeppelin" && fs.existsSync(hardhat_openzeppelin_path)){
-        return hardhat_openzeppelin_path;
+    const hardhat_package_path = path.join(PRE_PATH,`./artifacts/${contract_path}.sol/${contract_name}.json`)
+    // @openzeppelin, @uniswap,,,
+    if(contract_path != undefined && contract_path.slice(0,1) === "@" && fs.existsSync(hardhat_package_path)){
+        return hardhat_package_path;
     } else if(contract_path == undefined && fs.existsSync(truffle_path)) return truffle_path;
     else return hardhat_path
 }
+
 
 function get_contract_addresses(){
     const file_path = path.join(PRE_PATH ,"./config/contract_addresses.js");
