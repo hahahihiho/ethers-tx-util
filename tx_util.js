@@ -3,7 +3,7 @@ const fs = require('fs')
 const ethers = require('ethers');
 const path = require("path")
 
-const PRE_PATH = path.join(__dirname,"../")
+const PRE_PATH = path.join(__dirname,"../../")
 const CONFIG_PATH = path.join(PRE_PATH,"./config")
 
 function _read_json(path){
@@ -35,13 +35,18 @@ function _getCompiledInfoPath(contract_path,contract_name){
 
 function get_contract_addresses(){
     const file_path = path.join(PRE_PATH ,"./config/contract_addresses.js");
-    const CAs = require(file_path)
+    const CAs = require(file_path);
     return CAs
 }
 
-function get_additional_info(){
-    const config = require(path.join(PRE_PATH ,"./config/additional_info.js"));
-    return config
+function get_additional_info(what){
+    const file_path = path.join(PRE_PATH ,`./config/${what}_info.js`);
+    if(fs.existsSync(file_path)){
+        return require(file_path)
+    } else {
+        console.warn("get_additional_info file_path non-exist :", file_path)
+        return {}
+    }
 }
 
 function get_accounts(){
@@ -59,10 +64,7 @@ function get_accounts(){
 
 function get_pk(){
     require("dotenv").config({path:path.join(PRE_PATH,"./.env")})
-    let result = {
-        PK_LIST : process.env.PK_LIST.split(",")
-    }
-    return result
+    return process.env.PK_LIST.split(",")
 }
 
 function get_signer(url,priv_k){
@@ -106,10 +108,11 @@ function getInfo(contract_path,contract_name){
     return info
 }
 
-function readCA(){
+function readCA(injected_path){
     const config_path = path.join(PRE_PATH,"./config")
     if(!fs.existsSync(config_path)) fs.mkdirSync(config_path);
-    const ca_path = path.join(config_path,"cached_ca.json");
+    const ca_file_path = injected_path == undefined ? "cached_ca.json" : injected_path;
+    const ca_path = path.join(config_path,ca_file_path);
     if(!fs.existsSync(ca_path)) return {}
     return JSON.parse(fs.readFileSync(ca_path).toString())
 }

@@ -1,5 +1,6 @@
 const tx_util = require("../tx_util");
 const ethers = require("ethers");
+const hre = require("hardhat")
 
 // PK_ADMIN, PK_LIST must be defined in .env
 async function main(){
@@ -15,6 +16,7 @@ async function main(){
     console.log(accounts);
     const ca = tx_util.get_contract_addresses();
     console.log(ca)
+
 }
 
 main();
