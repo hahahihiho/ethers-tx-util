@@ -54,7 +54,8 @@ function get_accounts(){
     if(!fs.existsSync(file_path)){
         const accounts = []
         require("dotenv").config({path:path.join(PRE_PATH,"./.env")})
-        for(let pk of process.env.PK_LIST.split(",")){
+        const pks = process.env.PK_LIST || "";
+        for(let pk of pks.split(",")){
             accounts.push(new ethers.Wallet(pk).address)
         }
         fs.writeFileSync(file_path,JSON.stringify(accounts))
@@ -64,7 +65,8 @@ function get_accounts(){
 
 function get_pk(){
     require("dotenv").config({path:path.join(PRE_PATH,"./.env")})
-    return process.env.PK_LIST.split(",")
+    const pks = process.env.PK_LIST || "";
+    return pks.split(",");
 }
 
 function get_signer(url,priv_k){
