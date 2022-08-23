@@ -135,21 +135,35 @@ async function getImpersonatedSigner(provider,address){
     return provider.getSigner(address);
 }
 
+function makeRawTxData(functionInterface,parameters){
+    const signature = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(functionInterface)).slice(0,10)
+    const param_types = functionInterface.split(")")[0].split("(")[1].split(",")
+    const data = ethers.utils.defaultAbiCoder.encode(param_types,parameters)
+    return signature + data;
+}
+
 module.exports = {
     // get config
-    get_contract_addresses,
-    get_additional_info,
-    get_accounts,
-    get_pk,
-    get_signer,
-    readCA,
-    writeCA,
+    configUtil : {
+        get_contract_addresses,
+        get_additional_info,
+        get_accounts,
+        get_pk,
+        get_signer,
+        readCA,
+        writeCA,
+    },
     // get contract
-    getInfo,
-    deployContract,
+    hardhatUtil:{
+        getInfo,
+        deployContract,
+        getImpersonatedSigner,
+    },
     // util
-    getImpersonatedSigner
+    txUtil:{
+        makeRawTxData
+    }
     // getContract
     // change_signer,
-    // change_contract_addr 
+    // change_contract_addr,
 }
