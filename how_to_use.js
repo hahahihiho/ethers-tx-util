@@ -1,16 +1,16 @@
-const tx_util = require("./tx_util");
+const tx_util = require("./");
 const ethers = require("ethers");
 
 // PK_ADMIN, PK_LIST must be defined in .env
 async function main(){
     
     // get pk from .env
-    const pk_list = tx_util.get_pk();
+    const pk_list = tx_util.configUtils.get_pk();
     const pk_admin = pk_list[0];
 
     // get accounts from ../config/accounts.json if it doesn't exist,
     // get account addresses from .env(private key -> address)
-    const accounts = tx_util.get_accounts();
+    const accounts = tx_util.configUtils.get_accounts();
 
     // get signer
     const url = "http://127.0.0.1:8545";
@@ -26,12 +26,12 @@ async function main(){
 
     // deploy contract by assigned signer(+provider)
     const constructor_arguments = []; // if there is no constructor argument
-    const deployed_contract = await tx_util.deployContract(contract_path,contract_name,signer,constructor_arguments)
+    const deployed_contract = await tx_util.hardhatUtils.deployContract(contract_path,contract_name,signer,constructor_arguments)
     
     // get specific contract by address, abi, provide_or_signer
-    const ca_table = tx_util.readCA()
+    const ca_table = tx_util.configUtils.readCA()
     const ca = ca_table[contract_name] // read deployed contract address by contract_name
-    const contract_info = tx_util.getInfo(contract_path,contract_name) // abi, bytecode and so on..
+    const contract_info = tx_util.hardhatUtils.getInfo(contract_path,contract_name) // abi, bytecode and so on..
     const abi = contract_info.abi
     const contract = new ethers.Contract(ca,abi,signer)
 
@@ -39,12 +39,22 @@ async function main(){
     contract.connect(signer) // change signer
 
     // overwrite or append contract address
-    tx_util.writeCA({name:"address"})
+    tx_util.configUtils.writeCA({name:"address"})
 
 
     const no_pk_account = "0x"+"0".repeat(40)
     // it can be worked on hardhat node
-    const impersonated_signer = tx_util.getImpersonatedSigner(provider,no_pk_account)
+    const impersonated_signer = tx_util.hardhatUtils.getImpersonatedSigner(provider,no_pk_account)
+
+    // connection checkable provider
+    const http_url = url
+    const ws_usl = "ws://127.0.0.1:8545"
+    const customProvider1 = new tx_util.ethersUtils.ProviderModule(http_url)
+    const customProvider2 = new tx_util.ethersUtils.ProviderModule(ws_url)
+    let connection1 = await customProvider1.isConnected() // bool
+    let connection2 = await customProvider2.isConnected() // bool
+    customProvider2.closeConnection(); // ws_url can close the connection
+
 
 }
 
