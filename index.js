@@ -174,7 +174,11 @@ class ProviderModule{
     bindingProperties(){
         const properties = ["url","protocol_type","isWs","isHttp","getProvider","isConnected","closeConnection"]
         for(const p of properties){
-            this.provider[p] = eval("this."+p);
+            if(!(p in this.provider)){
+                this.provider[p] = eval("this."+p);
+            } else {
+                throw `ProviderModule : provider already has ${p}`
+            }
         }
     }
 
