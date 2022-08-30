@@ -17,6 +17,11 @@ function _read_json(path){
  * 
  */
 
+/**
+ * 
+ * @param {String} what 
+ * @returns {Object}
+ */
 function get_additional_info(what){
     const file_path = path.join(PRE_PATH ,`./config/${what}_info.js`);
     if(fs.existsSync(file_path)){
@@ -27,6 +32,10 @@ function get_additional_info(what){
     }
 }
 
+/**
+ * 
+ * @returns {Array}
+ */
 function get_pk(){
     let pks = ""
     try{
@@ -37,7 +46,10 @@ function get_pk(){
         return pks.split(",").filter(pk=>pk.length!=0);
     }
 }
-
+/**
+ * 
+ * @returns {Array}
+ */
 function get_accounts(){
     const accounts = []
     const pks = get_pk();
@@ -47,13 +59,22 @@ function get_accounts(){
     return accounts
 }
 
-
+/**
+ * 
+ * @param {String} url 
+ * @param {String} priv_k 
+ * @returns {signer}
+ */
 function get_signer(url,priv_k){
     const provider = new ethers.providers.JsonRpcProvider(url)
     const signer = new ethers.Wallet(priv_k,provider)
     return signer
 }
-
+/**
+ * 
+ * @param {String} injected_path - dumping path
+ * @returns {Object} addresses
+ */
 function readCA(injected_path){
     const config_path = path.join(PRE_PATH,"./config")
     if(!fs.existsSync(config_path)) fs.mkdirSync(config_path);
@@ -62,7 +83,10 @@ function readCA(injected_path){
     if(!fs.existsSync(ca_path)) return {}
     return JSON.parse(fs.readFileSync(ca_path).toString())
 }
-
+/**
+ * 
+ * @param {Object} ca - {key : address}
+ */
 function writeCA(ca){
     const config_path = path.join(PRE_PATH,"./config")
     if(!fs.existsSync(config_path)) fs.mkdirSync(config_path);
@@ -81,12 +105,17 @@ function writeCA(ca){
  */
 
 /**
+ * @dev
  * Which path does it return
  * 
  * truffle : contract_path == undefined 
  * hardhat :
  *  - @openzeppelin : contract_path strats with @openzeppelin
  *  - normal contract_path
+ * 
+ * @param {String} contract_path - path under contracts/<dir>/<.sol>
+ * @param {String} contract_name
+ * @returns 
  */
  function _getCompiledInfoPath(contract_path,contract_name){
     // handle post-fix ".sol"
@@ -101,20 +130,33 @@ function writeCA(ca){
     else return hardhat_path
 }
 
+/**
+ * 
+ * @param {String} contract_path - path under contracts/<dir>/<.sol>
+ * @param {String} contract_name
+ * @returns {Object}
+ */
 function getInfo(contract_path,contract_name){
     const info_path = _getCompiledInfoPath(contract_path,contract_name)
     let info = fs.readFileSync(info_path)
     info = JSON.parse(info.toString());
     return info
 }
-
-async function deployContract(contract_path,contract_name,signer,[...args]){
+/**
+ * 
+ * @param {String} contract_path 
+ * @param {String} contract_name 
+ * @param {signer} signer 
+ * @param {Array} [args=[]]
+ * @returns 
+ */
+async function deployContract(contract_path,contract_name,signer,args){
     const info = getInfo(contract_path,contract_name)
     const abi = info.abi;
     const bytecode = info.bytecode;
     
     const factory = new ethers.ContractFactory(abi, bytecode, signer)
-    const contract = args!=undefined ? await factory.deploy(...args) : await factory.deploy(); 
+    const contract = !args ? await factory.deploy() : await factory.deploy(...args); 
     await contract.deployed()
     console.log("deploy",contract_name,"on",contract.address)
     return contract
@@ -130,7 +172,12 @@ async function getImpersonatedSigner(provider,address){
  *  txUtils
  * 
  */
-
+/**
+ * 
+ * @param {String} functionInterface - functionName(...types)
+ * @param {*} parameters - parameters which is matching with types
+ * @returns 
+ */
 function makeRawTxData(functionInterface,parameters){
     const signature = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(functionInterface)).slice(0,10)
     const param_types = functionInterface.split(")")[0].split("(")[1].split(",")
