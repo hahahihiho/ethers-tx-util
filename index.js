@@ -113,11 +113,9 @@ async function deployContract(contract_path,contract_name,signer,[...args]){
     const abi = info.abi;
     const bytecode = info.bytecode;
     
-    const ca = {}
     const factory = new ethers.ContractFactory(abi, bytecode, signer)
-    const contract = await factory.deploy(...args)
-    ca[contract_name] = contract.address
-    writeCA(ca)
+    const contract = args!=undefined ? await factory.deploy(...args) : await factory.deploy(); 
+    await contract.deployed()
     console.log("deploy",contract_name,"on",contract.address)
     return contract
 }
