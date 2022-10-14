@@ -185,6 +185,64 @@ function makeRawTxData(functionInterface,parameters){
     return signature + data;
 }
 
+
+function getParameterTypes(functionInterface){
+    const startIndex = functionInterface.indexOf("(")+1;
+    const parameters = functionInterface.slice(startIndex,-1);
+    const parameter_list = [];
+    let parameter = ""
+    let handlingTuple = false
+    for(let l of parameters){
+        if(handlingTuple){
+            parameter += l
+            if(l == ")"){
+                parameter_list.push(parameter);
+                parameter = ""
+                handlingTuple = false
+            }
+        } else {
+            if(l == ","){
+                if(parameter != "") parameter_list.push(parameter);
+                parameter = ""
+            } else if(l == "("){
+                parameter = l;
+                handlingTuple = true;
+            } else {
+                parameter += l;
+            }
+        }
+    }
+    parameter_list.push(parameter)
+    return parameter_list
+}
+
+/**
+ * 
+ * @param {string} functionInterface - funcName(type,type,..)
+ * @param {bytes} data - 0x...
+ * @returns {bytes[]} return parameters
+ */
+
+function decodeTxData(functionInterface,data){
+    const param_types = getParameterTypes(functionInterface)
+    const sigFromInterface = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(functionInterface)).slice(0,10);
+    const sigFromData = data.slice(0,10);
+    if(sigFromInterface !== sigFromData) throw new Error(`Interface signature(${sigFromInterface}) and data signature(${sigFromData}) is different`);
+
+    const inputData = "0x"+ data.slice(10,); // data - sig
+    return ethers.utils.defaultAbiCoder.decode(param_types,inputData);
+}
+
+function decodeTxData_web3(functionInterface,data){
+    const param_types = getParameterTypes(functionInterface)
+    const sigFromInterface = web3.utils.sha3(functionInterface).slice(0,10);
+    const sigFromData = data.slice(0,10);
+    if(sigFromInterface !== sigFromData) throw new Error(`Interface signature(${sigFromInterface}) and data signature(${sigFromData}) is different`);
+
+    const inputData = data.slice(10,); // data - sig
+    return web3.eth.abi.decodeParameters(param_types,inputData);
+}
+
 /**
  * 
  *  ethersUtils
@@ -296,6 +354,7 @@ module.exports = {
         // change_contract_addr,
     },
     txUtils:{
-        makeRawTxData
+        makeRawTxData,
+        decodeTxData
     },
 }
