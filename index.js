@@ -275,7 +275,7 @@ class ProviderModule{
         return this.provider
     }
     bindingProperties(){
-        const properties = ["url","protocol_type","isWs","isHttp","getProvider","isConnected","closeConnection"]
+        const properties = ["url","protocol_type","isWs","isHttp","getProvider","isAlive","isConnected","closeConnection"]
         for(const p of properties){
             if(!(p in this.provider)){
                 this.provider[p] = eval("this."+p);
@@ -304,7 +304,7 @@ class ProviderModule{
         }
     }
 
-    async isConnected(){
+    async isAlive(){
         let connection = false;
         try{
             if(this.isHttp()){
@@ -316,6 +316,22 @@ class ProviderModule{
                 connection = true;
                 ws.websocket.on("error",(err)=> connection=false)
                 await ws.destroy()
+            }
+            return connection;
+        } catch (error) {
+            return false;
+        }
+    }
+    async isConnected(){
+        let connection = false;
+        try{
+            if(this.isHttp()){
+                const http = new ethers.providers.JsonRpcProvider(this.url);
+                await http.detectNetwork();
+                connection = true
+            } else if(this.isWs()){
+                if((await this.isAlive()) && [1].includes(this.websocket.readyState)) connection =  true;
+                else connection = false;
             }
             return connection;
         } catch (error) {

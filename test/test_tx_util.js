@@ -23,7 +23,7 @@ async function testHardhatUtils(){
 async function testEthersUtils(){
     const url_list = ["http://127.0.0.1:8545","http://127.0.0.1:8546","ws://127.0.0.1:8545","ws://127.0.0.1:8546"]
     for(const url of url_list){
-        const provider = new tx_util.ethersUtils.ProviderModule(url)
+        const provider = new tx_util.ethersUtils.ProviderModule(url);
         const connection = await provider.isConnected();
         console.log(url,"is connected : ",connection);
         provider.closeConnection();
